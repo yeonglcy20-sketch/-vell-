@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>노래책</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { text-align: center; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 8px 0; }
+  </style>
+</head>
+<body>
+  <h1>노래책</h1>
+  <ul id="songs"></ul>
+
+  <script>
+    // 구글 시트 ID와 시트 이름을 설정하세요
+    const sheetId = '1dSSUfpiZ1iRIz_CkPpuCq8mNORfcX103zY0nUXiceBw';
+    const sheetName = 'Sheet1'; // 실제 시트 이름으로 변경해주세요
+    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+
+    fetch(url)
+      .then(res => res.text())
+      .then(txt => {
+        // gviz JSON 응답 앞뒤 불필요한 텍스트 제거
+        const json = JSON.parse(txt.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+        const container = document.getElementById('songs');
+
+        rows.forEach(r => {
+          const [titleCell, artistCell, genreCell, levelCell] = r.c;
+          const title = titleCell?.v || '';
+          const artist = artistCell?.v || '';
+          const genre = genreCell?.v || '';
+          const level = levelCell?.v || '';
+
+          const li = document.createElement('li');
+          li.textContent = `${title} - ${artist} - ${genre} - ${level}`;
+          container.appendChild(li);
+        });
+      })
+      .catch(err => console.error('데이터 로드 실패:', err));
+  </script>
+</body>
+</html>
