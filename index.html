@@ -8,15 +8,17 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #fff0f5 0%, #ffe4ec 100%);
+      background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
       padding: 20px;
+      color: #e0e0e0;
     }
     h1 {
       font-family: 'Nanum Pen Script', cursive;
-      color: #ff69b4;
+      color: #a5c9ea;
       text-align: center;
       font-size: 2.5em;
       margin-bottom: 20px;
+      text-shadow: 0 0 8px rgba(165, 201, 234, 0.8);
     }
     .controls {
       margin-bottom: 10px;
@@ -26,7 +28,7 @@
       justify-content: center;
     }
     .controls label {
-      background: #ffe4ec;
+      background: rgba(255, 255, 255, 0.1);
       padding: 6px 10px;
       border-radius: 8px;
       font-size: 14px;
@@ -37,42 +39,44 @@
     input, select {
       padding: 6px 8px;
       font-size: 14px;
-      border: 2px solid #ffb6c1;
+      border: 2px solid #a5c9ea;
       border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      color: #e0e0e0;
       outline: none;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
-      background: white;
+      background: rgba(0, 0, 0, 0.5);
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.5);
     }
     th, td {
       padding: 12px;
       text-align: left;
     }
     th {
-      background: #ffb6c1;
-      color: white;
+      background: #415a77;
+      color: #e0e0e0;
       font-weight: normal;
     }
     th.sortable {
       cursor: pointer;
     }
     th.sortable:hover {
-      background: #ff85a1;
+      background: #577590;
     }
     td {
-      border-bottom: 1px solid #ffe4ec;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
     tbody tr:nth-child(even) {
-      background: #fff0f5;
+      background: rgba(65, 90, 119, 0.3);
     }
     tbody tr:hover {
-      background: #ffe4ec;
+      background: rgba(97, 124, 155, 0.5);
     }
   </style>
 </head>
