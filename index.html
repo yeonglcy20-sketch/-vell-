@@ -7,41 +7,103 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     h1 { text-align: center; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 8px 0; }
+    .controls { margin-bottom: 10px; display: flex; gap: 10px; align-items: center; }
+    input, select { padding: 5px; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+    th.sortable { cursor: pointer; }
+    th.sortable:hover { background-color: #f0f0f0; }
   </style>
 </head>
 <body>
   <h1>노래책</h1>
-  <ul id="songs"></ul>
+  <div class="controls">
+    <label>검색: <input type="text" id="search" placeholder="제목 또는 가수명 검색"></label>
+    <label>숙련도: 
+      <select id="levelFilter">
+        <option value="">전체</option>
+      </select>
+    </label>
+  </div>
+  <table id="songsTable">
+    <thead>
+      <tr>
+        <th data-column="title" class="sortable">노래제목</th>
+        <th data-column="artist" class="sortable">가수명</th>
+        <th>숙련도</th>
+        <th>장르</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    // 구글 시트 ID와 시트 이름을 설정하세요
     const sheetId = '1dSSUfpiZ1iRIz_CkPpuCq8mNORfcX103zY0nUXiceBw';
-    const sheetName = 'Sheet1'; // 실제 시트 이름으로 변경해주세요
+    const sheetName = 'Sheet1';
     const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?sheet=${encodeURIComponent(sheetName)}&tqx=out:json`;
+
+    let songs = [];
+    let currentSort = { column: null, direction: 1 };
 
     fetch(url)
       .then(res => res.text())
       .then(txt => {
-        // gviz JSON 응답 앞뒤 불필요한 텍스트 제거
         const json = JSON.parse(txt.substr(47).slice(0, -2));
-        const rows = json.table.rows;
-        const container = document.getElementById('songs');
-
-        rows.forEach(r => {
-          const [titleCell, artistCell, genreCell, levelCell] = r.c;
-          const title = titleCell?.v || '';
-          const artist = artistCell?.v || '';
-          const genre = genreCell?.v || '';
-          const level = levelCell?.v || '';
-
-          const li = document.createElement('li');
-          li.textContent = `${title} - ${artist} - ${genre} - ${level}`;
-          container.appendChild(li);
-        });
+        songs = json.table.rows.map(r => ({
+          title: r.c[0]?.v || '',
+          artist: r.c[1]?.v || '',
+          level: r.c[2]?.v || '',
+          genre: r.c[3]?.v || ''
+        }));
+        populateLevelFilter();
+        renderTable();
       })
       .catch(err => console.error('데이터 로드 실패:', err));
+
+    function populateLevelFilter() {
+      const levels = [...new Set(songs.map(s => s.level))].filter(l => l);
+      const select = document.getElementById('levelFilter');
+      levels.forEach(lv => {
+        const opt = document.createElement('option'); opt.value = lv; opt.textContent = lv;
+        select.appendChild(opt);
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector('#songsTable tbody');
+      const searchText = document.getElementById('search').value.trim().toLowerCase();
+      const levelFilter = document.getElementById('levelFilter').value;
+      let filtered = songs.filter(s => {
+        return (!levelFilter || s.level === levelFilter) &&
+               (!searchText || s.title.toLowerCase().includes(searchText) || s.artist.toLowerCase().includes(searchText));
+      });
+      if (currentSort.column) {
+        filtered.sort((a, b) => {
+          const col = currentSort.column;
+          let va = a[col] || '';
+          let vb = b[col] || '';
+          return va.localeCompare(vb) * currentSort.direction;
+        });
+      }
+      tbody.innerHTML = '';
+      filtered.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${s.title}</td><td>${s.artist}</td><td>${s.level}</td><td>${s.genre}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    document.getElementById('search').addEventListener('input', renderTable);
+    document.getElementById('levelFilter').addEventListener('change', renderTable);
+
+    document.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const col = th.dataset.column;
+        if (currentSort.column === col) currentSort.direction *= -1;
+        else { currentSort.column = col; currentSort.direction = 1; }
+        renderTable();
+      });
+    });
   </script>
 </body>
 </html>
